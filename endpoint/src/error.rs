@@ -17,7 +17,7 @@ use rocket_okapi::{JsonSchema, OpenApiError};
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
-/// Response with an error code of `NoSuchFootprint`. See Chapter "Error Codes" of the Tech Specs for mor details.
+/// Response with an error code of `NoSuchFootprint`. See Chapter "Error Codes" of the Tech Specs for more details.
 pub(crate) struct NoSuchFootprint {
     pub(crate) message: &'static str,
     pub(crate) code: &'static str,
@@ -25,7 +25,7 @@ pub(crate) struct NoSuchFootprint {
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
-/// Response with an error code of `AccessDenied`. See Chapter "Error Codes" of the Tech Specs for mor details.
+/// Response with an error code of `AccessDenied`. See Chapter "Error Codes" of the Tech Specs for more details.
 pub(crate) struct AccessDenied {
     pub(crate) message: &'static str,
     pub(crate) code: &'static str,
@@ -33,7 +33,7 @@ pub(crate) struct AccessDenied {
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
-/// Response with an error code of `BadRequest`. See Chapter "Error Codes" of the Tech Specs for mor details.
+/// Response with an error code of `BadRequest`. See Chapter "Error Codes" of the Tech Specs for more details.
 pub(crate) struct BadRequest {
     pub(crate) message: &'static str,
     pub(crate) code: &'static str,
@@ -41,10 +41,27 @@ pub(crate) struct BadRequest {
 
 #[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
 #[serde(crate = "rocket::serde")]
-/// Response with an error code of `NotImplemented`. See Chapter "Error Codes" of the Tech Specs for mor details.
+/// Response with an error code of `NotImplemented`. See Chapter "Error Codes" of the Tech Specs for more details.
 pub(crate) struct NotImplemented {
     pub(crate) message: &'static str,
     pub(crate) code: &'static str,
+}
+
+#[derive(Serialize, Deserialize, JsonSchema, PartialEq, Debug)]
+#[serde(crate = "rocket::serde")]
+/// Response with an error code of `InternalError`. See Chapter "Error Codes" of the Tech Specs for more details.
+pub(crate) struct InternalError {
+    pub(crate) message: String,
+    pub(crate) code: &'static str,
+}
+
+impl InternalError {
+    pub(crate) fn custom(message: String) -> Self {
+        Self {
+            message,
+            code: "InternalError",
+        }
+    }
 }
 
 impl Default for AccessDenied {
@@ -83,6 +100,15 @@ impl Default for NotImplemented {
     }
 }
 
+impl Default for InternalError {
+    fn default() -> Self {
+        InternalError {
+            message: "Internal Server Error".to_string(),
+            code: "InternalError",
+        }
+    }
+}
+
 impl<'r, 'o: 'r> Responder<'r, 'o> for NoSuchFootprint {
     fn respond_to(self, request: &'r Request<'_>) -> response::Result<'o> {
         Response::build()
@@ -115,6 +141,15 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for NotImplemented {
         Response::build()
             .merge(Json(self).respond_to(request)?)
             .status(Status::BadRequest)
+            .ok()
+    }
+}
+
+impl<'r, 'o: 'r> Responder<'r, 'o> for InternalError {
+    fn respond_to(self, request: &'r Request<'_>) -> response::Result<'o> {
+        Response::build()
+            .merge(Json(self).respond_to(request)?)
+            .status(Status::InternalServerError)
             .ok()
     }
 }
@@ -164,6 +199,17 @@ impl OpenApiResponderInner for AccessDenied {
     fn responses(gen: &mut OpenApiGenerator) -> Result<Responses, OpenApiError> {
         let resp =
             openapi_response::<AccessDenied>(gen, "403".to_owned(), "# 403 Forbidden".to_owned());
+        Ok(resp)
+    }
+}
+
+impl OpenApiResponderInner for InternalError {
+    fn responses(gen: &mut OpenApiGenerator) -> Result<Responses, OpenApiError> {
+        let resp = openapi_response::<InternalError>(
+            gen,
+            "500".to_owned(),
+            "# 500 Internal Server Error".to_owned(),
+        );
         Ok(resp)
     }
 }
