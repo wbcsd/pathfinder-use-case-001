@@ -1031,7 +1031,7 @@ dependencies = [
 
 [[package]]
 name = "pathfinder-endpoint"
-version = "2.1.0-wip"
+version = "2.2.0-wip"
 dependencies = [
  "base64 0.13.0",
  "chrono",
@@ -2017,9 +2017,9 @@ dependencies = [
 
 [[package]]
 name = "uuid"
-version = "1.1.2"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd6469f4314d5f1ffec476e05f17cc9a78bc7a27a6a857842170bdf8d6f98d2f"
+checksum = "a183cf7feeba97b4dd1c0d46788634f6221d87fa961b305bed08c851829efcc0"
 dependencies = [
  "getrandom",
  "serde",

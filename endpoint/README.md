@@ -1,4 +1,4 @@
-# Endpoint implementation of Technical Specifications for PCF Data Exchange (Version 2.1.0)
+# Endpoint implementation of Technical Specifications for PCF Data Exchange (Version 2.2.0)
 
 A yet incomplete beta-quality implementation of the HTTP REST API of the [Technical Specifications for PCF Data Exchange](https://wbcsd.github.io/tr/2023/data-exchange-protocol-20230221/)
 

@@ -75,6 +75,8 @@ pub struct CarbonFootprint {
 
     pub characterization_factors: CharacterizationFactors,
 
+    pub ipcc_characterization_factors_sources: IpccCharacterizationFactorsSources,
+
     pub cross_sectoral_standards_used: CrossSectoralStandardSet,
     pub product_or_sector_specific_rules: ProductOrSectorSpecificRuleSet,
 
@@ -176,6 +178,14 @@ pub enum CharacterizationFactors {
     #[serde(rename = "AR6")]
     Ar6,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(crate = "rocket::serde")]
+pub struct IpccCharacterizationFactorsSource(String);
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(crate = "rocket::serde")]
+pub struct IpccCharacterizationFactorsSources(pub Vec<IpccCharacterizationFactorsSource>);
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(crate = "rocket::serde", rename_all = "camelCase")]
@@ -423,6 +433,18 @@ pub enum AssuranceBoundary {
     CradleToGate,
 }
 
+impl From<String> for IpccCharacterizationFactorsSource {
+    fn from(s: String) -> IpccCharacterizationFactorsSource {
+        IpccCharacterizationFactorsSource(s)
+    }
+}
+
+impl From<Vec<IpccCharacterizationFactorsSource>> for IpccCharacterizationFactorsSources {
+    fn from(v: Vec<IpccCharacterizationFactorsSource>) -> IpccCharacterizationFactorsSources {
+        IpccCharacterizationFactorsSources(v)
+    }
+}
+
 impl From<Decimal> for PositiveDecimal {
     fn from(f: Decimal) -> PositiveDecimal {
         PositiveDecimal(f)
@@ -480,6 +502,36 @@ impl From<String> for Urn {
 impl From<String> for SpecVersionString {
     fn from(s: String) -> SpecVersionString {
         SpecVersionString(s)
+    }
+}
+
+impl JsonSchema for IpccCharacterizationFactorsSource {
+    fn schema_name() -> String {
+        String::new()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
+        let mut s = match String::json_schema(gen) {
+            Schema::Object(s) => s,
+            Schema::Bool(_) => panic!("Unexpected base schema"),
+        };
+
+        s.string = Some(Box::new(StringValidation {
+            pattern: Some("^AR\\d+$".into()),
+            ..Default::default()
+        }));
+
+        Schema::Object(s)
+    }
+}
+
+impl JsonSchema for IpccCharacterizationFactorsSources {
+    fn schema_name() -> String {
+        "IpccCharacterizationFactorsSources".into()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> Schema {
+        json_set_schema::<IpccCharacterizationFactorsSource>(gen, Some(1))
     }
 }
 
@@ -731,8 +783,7 @@ impl JsonSchema for SpecVersionString {
         };
 
         s.string = Some(Box::from(StringValidation {
-            // TODO: update version string to also allow for "x.y.z-[...]"
-            pattern: Some("\\d+\\.\\d+\\.\\d+".into()),
+            pattern: Some("^\\d+\\.\\d+\\.\\d+(-\\d{8})?$".into()),
             min_length: Some(5),
             ..Default::default()
         }));

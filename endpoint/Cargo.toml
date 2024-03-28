@@ -1,6 +1,6 @@
 [package]
 name = "pathfinder-endpoint"
-version = "2.1.0-wip"
+version = "2.2.0-wip"
 edition = "2018"
 
 [[bin]]
@@ -35,5 +35,5 @@ version = "0.5.0-rc.1"
 features = ["json"]
 
 [dependencies.uuid]
-version = "1.1"
+version = "1.8"
 features = ["v4", "serde"]
